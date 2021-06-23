@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "443041645452",
+    "firebase_url": "https://chat-be07a-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "chat-be07a",
+    "storage_bucket": "chat-be07a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:443041645452:android:8464216db03b7866710ca9",
+        "android_client_info": {
+          "package_name": "com.amc.my_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "443041645452-ajsfnh3hsemb9tjn9j699tbpl7l4v5vq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClmXWV9Du3CgveAFtsjZUJwbwpNvVZ7gc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "443041645452-ajsfnh3hsemb9tjn9j699tbpl7l4v5vq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
