@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:letschat/screens/chat_screen.dart';
 import 'package:letschat/screens/groupscreen.dart';
 import 'package:letschat/screens/login_screen.dart';
+import 'package:letschat/widgets/chatbottom.dart';
 
 import 'chatpage.dart';
 
@@ -44,7 +45,7 @@ class _Homescreen1State extends State<Homescreen1>
     return Scaffold(
       appBar: AppBar(
         title: Text("My Chat"),
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purpleAccent,
         actions: [
           IconButton(
               icon: Icon(Icons.exit_to_app),
@@ -107,7 +108,7 @@ class _Homescreen1State extends State<Homescreen1>
           //   chatmodels: widget.chatmodels,
           //   sourchat: widget.sourchat,
           // ),
-          ChatPage1(),
+          chatbottom(),
           group(),
         ],
       ),

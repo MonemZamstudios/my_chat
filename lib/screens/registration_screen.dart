@@ -131,11 +131,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         });
                         try{
                           final newUser = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-
+                          final id = FirebaseAuth.instance.currentUser.uid;
 
                           _firestore.collection('AllUsers').add({
                             'useremail': _text2.text,
                             'username': _text1.text,
+                            'token': id.toString(),
                             //'userid': uid,
                           });
                           if (newUser != null){

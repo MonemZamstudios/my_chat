@@ -25,7 +25,9 @@ class ChatPage1 extends StatefulWidget {
 class _ChatPage1State extends State<ChatPage1> {
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
+
+
       body: SafeArea(
         child: StreamBuilder(
           stream: _firestore
@@ -51,12 +53,70 @@ class _ChatPage1State extends State<ChatPage1> {
               // final useremail = data['username'];
               final id = FirebaseAuth.instance.currentUser.uid;
               final email =FirebaseAuth.instance.currentUser.email;
-              return MessageBubble(
-                uesrname: uesrname,
-                id: id,
-                email: email,
-                otheremail: otheremail,
+              return  Column(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChatScreen(
+                                  myuid: id,
+                                  othername: uesrname,
+                                  myemail: email,
+                                  otheremail: otheremail)));
+                    },
+
+
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        radius: 30,
+                        // child: SvgPicture.asset(
+                        // chatModel.isGroup ? "assets/groups.svg" : "assets/person.svg",
+                        //   color: Colors.white,
+                        //   height: 36,
+                        //   width: 36,
+                        // ),
+                        // backgroundColor: Colors.blueGrey,
+                      ),
+                      title: Text(
+                        // chatModel.name,
+                        uesrname.toString(),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Row(
+                        children: [
+                          Icon(Icons.done_all),
+                          SizedBox(
+                            width: 3,
+                          ),
+                          Text(
+                            //  chatModel.currentMessage,
+                            'Say Hi to '+ uesrname.toString(),
+                            style: TextStyle(
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      //  trailing: Text(chatModel.time),
+                      trailing: Text('12:00'),
+                    ),
+
+
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20, left: 80),
+                    child: Divider(
+                      thickness: 1,
+                    ),
+                  ),
+                ],
               );
+
             }).toList();
 
             return Container(
@@ -70,20 +130,7 @@ class _ChatPage1State extends State<ChatPage1> {
                       children: messageWidgets,
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Container(
-                      //  color: Colors.red,
-                      margin: EdgeInsets.all(35),
-                      child: IconButton(
-                          color: Colors.green,
-                          icon: Icon(Icons.message_rounded,size: 50,),
-                          onPressed: (){
 
-                          }
-                      ),
-                    ),
-                  ),
                 ],
               ),
             );
@@ -94,68 +141,3 @@ class _ChatPage1State extends State<ChatPage1> {
   }
 }
 
-class MessageBubble extends StatelessWidget {
-  MessageBubble({this.uesrname , this.id, this.email,this.otheremail});
-
-  final String uesrname;
-  final String id;
-  final String email;
-  final String otheremail;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => ChatScreen(myuid:id , othername:uesrname , myemail:email,otheremail:otheremail)));
-          },
-          child: ListTile(
-            leading: CircleAvatar(
-              radius: 30,
-              // child: SvgPicture.asset(
-              // chatModel.isGroup ? "assets/groups.svg" : "assets/person.svg",
-              //   color: Colors.white,
-              //   height: 36,
-              //   width: 36,
-              // ),
-              // backgroundColor: Colors.blueGrey,
-            ),
-            title: Text(
-              // chatModel.name,
-              uesrname.toString(),
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Row(
-              children: [
-                Icon(Icons.done_all),
-                SizedBox(
-                  width: 3,
-                ),
-                Text(
-                  //  chatModel.currentMessage,
-                  'Say Hi to '+uesrname.toString(),
-                  style: TextStyle(
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-            //  trailing: Text(chatModel.time),
-            trailing: Text('12:00'),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 20, left: 80),
-          child: Divider(
-            thickness: 1,
-          ),
-        ),
-      ],
-    );
-  }
-}
