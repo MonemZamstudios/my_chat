@@ -28,6 +28,11 @@ class ChatPage1 extends StatefulWidget {
 }
 
 class _ChatPage1State extends State<ChatPage1> {
+  final  id = FirebaseAuth.instance.currentUser.uid;
+  final email =FirebaseAuth.instance.currentUser.email;
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,8 +40,10 @@ class _ChatPage1State extends State<ChatPage1> {
 
       body: SafeArea(
         child: StreamBuilder(
-          stream: _firestore.collection('AllUsers').orderBy("username", descending: true).snapshots(),
+          stream: _firestore.collection(email+'chat with').orderBy("me", descending: true).snapshots(),
           builder: (context, snapshot) {
+
+
             // If we do not have data yet, show a progress indicator.
             if (!snapshot.hasData) {
               return Center(
@@ -46,31 +53,45 @@ class _ChatPage1State extends State<ChatPage1> {
             // Create the list of message widgets.
 
             // final messages = snapshot.data.documents.reversed;
+
             List<Widget> messageWidgets = snapshot.data.docs.map<Widget>((m) {
               final data = m.data();
-              final uesrname = data['username'];
-              final otheremail = data['useremail'];
-              // final useremail = data['username'];
-              final id = FirebaseAuth.instance.currentUser.uid;
+            //  final uesrname = data['othername'];
+              final otheremail = data['otheremail'];
+              final  othertoken = data['token'];
+             // final  time = data['timestamp'];
+             //  final otheremail = data['otheremail'];
               final email =FirebaseAuth.instance.currentUser.email;
-              if(snapshot.hasData)
-              return  Column(
+              final  id = FirebaseAuth.instance.currentUser.uid;
+
+              //if(snapshot.hasData)
+
+              return
+              //  id.toString() ==othertoken.toString()?'':
+
+              Column(
                   children: [
 
                     InkWell(
+
                       onTap: () {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ChatScreen(
                                     myuid: id,
-                                    othername: uesrname,
                                     myemail: email,
-                                    otheremail: otheremail)));
+                                    otheremail: otheremail,
+                                    othertoken: othertoken
+
+
+
+                                )));
                       },
 
-                      child: ListTile(
+                      child: (id.toString() ==othertoken.toString())? SizedBox():ListTile(
                         leading: CircleAvatar(
+
                           radius: 30,
                           // child: SvgPicture.asset(
                           // chatModel.isGroup ? "assets/groups.svg" : "assets/person.svg",
@@ -82,7 +103,7 @@ class _ChatPage1State extends State<ChatPage1> {
                         ),
                         title: Text(
                           // chatModel.name,
-                          uesrname.toString(),
+                          otheremail.toString(),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -94,11 +115,14 @@ class _ChatPage1State extends State<ChatPage1> {
                             SizedBox(
                               width: 3,
                             ),
-                            Text(
-                              //  chatModel.currentMessage,
-                              'Say Hi to '+ uesrname.toString(),
-                              style: TextStyle(
-                                fontSize: 13,
+                            Expanded(
+                              child: Text(
+                                //  chatModel.currentMessage,
+                                'Say Hi to ' +otheremail.toString(),
+
+                                style: TextStyle(
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ],
@@ -111,7 +135,8 @@ class _ChatPage1State extends State<ChatPage1> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 20, left: 80),
-                      child: Divider(
+                      child: id.toString() ==othertoken.toString()?SizedBox():
+                      Divider(
                         thickness: 1,
                       ),
                     ),
@@ -138,7 +163,7 @@ class _ChatPage1State extends State<ChatPage1> {
             );
           },
         ),
-        
+
       ),
     );
   }

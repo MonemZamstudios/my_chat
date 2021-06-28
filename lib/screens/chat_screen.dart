@@ -18,10 +18,11 @@ class ChatScreen extends StatefulWidget {
   static String id = 'chat_screen';
 
   final String myuid;
-  final String othername;
+ // final String othername;
   final String myemail;
   final String otheremail;
-  ChatScreen({this.myuid,this.othername,this.myemail,this.otheremail});
+  final String othertoken;
+  ChatScreen({this.myuid,this.myemail,this.otheremail,this.othertoken});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -34,12 +35,13 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isEmojiVisible = false;
   bool isKeyboardVisible = false;
   var messageText;
+  final id = FirebaseAuth.instance.currentUser.uid;
 
 
   @override
   void initState() {
     print(widget.myuid);
-    print(widget.othername);
+    print(widget.otheremail);
     print(widget.myemail);
     super.initState();
     getCurrentUser();
@@ -163,7 +165,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   Text(
                    // widget.chatModel.name,
-                    widget.othername.toString(),
+                    widget.otheremail.toString(),
                     style: TextStyle(
                       fontSize: 18.5,
                       fontWeight: FontWeight.bold,
@@ -227,7 +229,7 @@ class _ChatScreenState extends State<ChatScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              MessagesStream( myemail :widget.myemail, otheremail:widget.otheremail),
+              MessagesStream( myuid :widget.myuid, othertoken:widget.othertoken),
               Container(
                 width: double.infinity,
                 height: 55.0,
@@ -266,11 +268,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                       focusNode: focusNode,
                                       onSubmitted: (value) {
                                         controller.clear();
-                                        _firestore.collection('messages').add({
-                                          'sender': loggedInuser.email,
-                                          'text': messageText,
-                                          'timestamp': Timestamp.now(),
-                                        });
+                                        _firestore.collection('CHAT').add({
+                                              'sender': loggedInuser.email,
+                                              'text': messageText,
+                                              'timestamp': Timestamp.now(),
+                                               });
                                       },
                                       maxLines: null,
                                       controller: controller,
@@ -337,15 +339,49 @@ class _ChatScreenState extends State<ChatScreen> {
                           icon: new Icon(Icons.send),
                           onPressed: () {
                             controller.clear();
-                            _firestore.collection(widget.myemail+widget.otheremail).add({
-                              'sender': loggedInuser.email,
-                              'text': messageText,
-                              'timestamp': Timestamp.now(),
+                            _firestore.collection('All Users').doc(widget.myuid).collection('Chats').doc(widget.myuid+widget.othertoken).collection('chat with').add({
+
+                                  'sender': loggedInuser.email,
+                                  'text': messageText,
+                                  'timestamp': Timestamp.now(),
+                                  'myid':id.toString(),
+                                  'otherid':widget.othertoken,
+                                  'otheremail':widget.otheremail,
+                                  'status': true,
+                                 });
+                            _firestore.collection('All Users').doc(widget.othertoken).collection('Chats').doc(widget.othertoken+widget.myuid).collection('chat with').add({
+
+                                  'sender': loggedInuser.email,
+                                  'text': messageText,
+                                  'timestamp': Timestamp.now(),
+                                  'myid':id.toString(),
+                                  'otherid':widget.othertoken,
+                                 'otheremail':widget.otheremail,
+                              'status': 'true',
+
+
                             });
-                            _firestore.collection(widget.otheremail+widget.myemail).add({
-                              'sender': loggedInuser.email,
-                              'text': messageText,
+                            _firestore.collection(loggedInuser.email+'chat with').add({
+
+                              'me': loggedInuser.email,
                               'timestamp': Timestamp.now(),
+
+                              'otheremail':widget.otheremail,
+                              'othertoken':widget.othertoken,
+                              'myuid':widget.myuid,
+
+
+                            });
+                            _firestore.collection(widget.otheremail+'chat with').add({
+
+                              'me': widget.otheremail,
+                              'timestamp': Timestamp.now(),
+
+                              'otheremail':loggedInuser.email,
+                              'othertoken':widget.myuid,
+                              'myuid':widget.othertoken,
+
+
                             });
                           },
                           color: Colors.blueGrey,
@@ -384,15 +420,15 @@ String giveUsername(String email) {
 }
 
 class MessagesStream extends StatelessWidget {
-  final String myemail;
-  final String otheremail;
-  MessagesStream({this.myemail,this.otheremail});
+  final String myuid;
+  final String othertoken;
+  MessagesStream({this.myuid,this.othertoken});
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: _firestore
-          .collection(myemail+otheremail)
+          .collection('All Users').doc(myuid).collection('Chats').doc(myuid+othertoken).collection('chat with')
       // Sort the messages by timestamp DESC because we want the newest messages on bottom.
           .orderBy("timestamp", descending: true)
           .snapshots(),

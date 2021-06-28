@@ -51,6 +51,8 @@ class _ChatPage1State extends State<ChatPage1> {
               final uesrname = data['username'];
               final otheremail = data['useremail'];
               // final useremail = data['username'];
+              final  othertoken = data['token'];
+
               final id = FirebaseAuth.instance.currentUser.uid;
               final email =FirebaseAuth.instance.currentUser.email;
               return  Column(
@@ -62,13 +64,15 @@ class _ChatPage1State extends State<ChatPage1> {
                           MaterialPageRoute(
                               builder: (context) => ChatScreen(
                                   myuid: id,
-                                  othername: uesrname,
+                                 // othername: uesrname,
                                   myemail: email,
-                                  otheremail: otheremail)));
+                                  othertoken: othertoken,
+                                  otheremail: otheremail
+                              )));
                     },
 
 
-                    child: ListTile(
+                    child: (id.toString() ==othertoken.toString())? SizedBox():ListTile(
                       leading: CircleAvatar(
                         radius: 30,
                         // child: SvgPicture.asset(
@@ -110,7 +114,7 @@ class _ChatPage1State extends State<ChatPage1> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(right: 20, left: 80),
-                    child: Divider(
+                    child: id.toString() ==othertoken.toString()?SizedBox():Divider(
                       thickness: 1,
                     ),
                   ),
