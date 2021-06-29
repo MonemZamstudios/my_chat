@@ -1,14 +1,20 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:letschat/components/colors.dart';
+import 'package:letschat/screens/camera.dart';
 import 'package:letschat/screens/welcome_screen.dart';
 import 'package:letschat/screens/login_screen.dart';
 import 'package:letschat/screens/registration_screen.dart';
 import 'package:letschat/screens/chat_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  cameras = await availableCameras();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp,DeviceOrientation.portraitDown]).then((_)=> runApp(FlashChat()));

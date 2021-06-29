@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:letschat/components/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -8,11 +10,22 @@ import 'package:letschat/components/colors.dart';
 import 'package:emoji_picker/emoji_picker.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter/services.dart';
+import 'package:letschat/screens/camerastart.dart';
 import 'package:letschat/widgets/homescreenofchat.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:image_picker/image_picker.dart';
+import 'package:letschat/widgets/map.dart';
+import 'package:path/path.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'camera.dart';
+
+final database= FirebaseDatabase.instance.reference();
 
 final _firestore = FirebaseFirestore.instance;
 User loggedInuser;
 final focusNode = FocusNode();
+final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class ChatScreen extends StatefulWidget {
   static String id = 'chat_screen';
@@ -37,9 +50,39 @@ class _ChatScreenState extends State<ChatScreen> {
   var messageText;
   final id = FirebaseAuth.instance.currentUser.uid;
 
+//////////////////////////////////////////////////////////////
+  var _image;
+  final picker = ImagePicker();
 
+  Future getimage()async{
+    var image = await picker.getImage(source: ImageSource.gallery);
+    setState(() {
+      _image=image;
+      print('Image path$_image');
+      uploadpic2();
+    });
+  }
+
+  Future uploadpic2()async{
+    String url2="";
+
+    String fileName = basename(_image.path);
+    firebase_storage.Reference fff = firebase_storage.FirebaseStorage.instance.ref().child(fileName);
+    firebase_storage.UploadTask eee = fff.putFile(_image);
+    eee.then((res)async{
+      url2 = await res.ref.getDownloadURL();
+      print(url2);
+      _firestore.collection('pictures').add({
+        'picture': url2,
+
+      });
+
+    });
+  }
+  //////////////////////////////////////////////////////////
   @override
   void initState() {
+
     print(widget.myuid);
     print(widget.otheremail);
     print(widget.myemail);
@@ -60,25 +103,25 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
 
-  Future toggleEmojiKeyboard() async {
-    if (isKeyboardVisible) {
-      FocusScope.of(context).unfocus();
-    }
-
-    setState(() {
-      isEmojiVisible = !isEmojiVisible;
-    });
-  }
-
-  Future<bool> onBackPress() {
-    if (isEmojiVisible) {
-      toggleEmojiKeyboard();
-    } else {
-      Navigator.pop(context);
-    }
-
-    return Future.value(false);
-  }
+  // Future toggleEmojiKeyboard() async {
+  //   if (isKeyboardVisible) {
+  //     FocusScope.of(context).unfocus();
+  //   }
+  //
+  //   setState(() {
+  //     isEmojiVisible = !isEmojiVisible;
+  //   });
+  // }
+  //
+  // Future<bool> onBackPress() {
+  //   if (isEmojiVisible) {
+  //     toggleEmojiKeyboard();
+  //   } else {
+  //     Navigator.pop(context);
+  //   }
+  //
+  //   return Future.value(false);
+  // }
 
   @override
 
@@ -200,10 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Text("Media, links, and docs"),
                     value: "Media, links, and docs",
                   ),
-                  PopupMenuItem(
-                    child: Text("Whatsapp Web"),
-                    value: "Whatsapp Web",
-                  ),
+
                   PopupMenuItem(
                     child: Text("Search"),
                     value: "Search",
@@ -216,6 +256,22 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Text("Wallpaper"),
                     value: "Wallpaper",
                   ),
+                  PopupMenuItem(
+                    child: Text("Mute Chat"),
+                    value: "Mute Chat",
+                  ),
+                  PopupMenuItem(
+                    child: Text("Translate Messages"),
+                    value: "Translate Messages",
+                  ),
+                  PopupMenuItem(
+                    child: Text("Pin Chat"),
+                    value: "Pin Chat",
+                  ),
+                  PopupMenuItem(
+                    child: Text("Archive Chat"),
+                    value: "Archive Chat",
+                  ),
                 ];
               },
             ),
@@ -224,7 +280,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: SafeArea(
         child: WillPopScope(
-          onWillPop: onBackPress,
+         // onWillPop: onBackPress,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -297,22 +353,364 @@ class _ChatScreenState extends State<ChatScreen> {
                                             IconButton(
                                               icon: Icon(Icons.attach_file),
                                               onPressed: () {
+
+
                                                 showModalBottomSheet(
+
+
                                                     backgroundColor:
                                                     Colors.transparent,
                                                     context: context,
                                                     builder: (builder) =>
-                                                        bottomSheet());
+
+                                                          Container(
+
+                                                            height: 333,
+                                                            width: 203,
+                                                            // width: MediaQuery.of(context).size.width,
+                                                            child: Card(
+                                                              margin: const EdgeInsets.all(18.0),
+                                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                                              child: Padding(
+                                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                                                                child: Column(
+                                                                  children: [
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                      children: [
+
+
+                                                                        InkWell(
+                                                                          onTap: (){
+
+                                                                            //return CameraScreen();
+
+                                                                            // getimage();
+                                                                            //  print('pressss');
+                                                                         //   Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
+                                                                          },
+
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.indigo,
+                                                                                child: IconButton(
+                                                                                    icon: Icon(Icons.insert_drive_file,
+                                                                                      // semanticLabel: "Help",
+                                                                                      size: 29,
+                                                                                      color: Colors.white,)
+                                                                                ),
+                                                                              ),
+
+
+                                                                              Text(
+                                                                                "Document",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        InkWell(
+                                                                          onTap: ()async{
+
+                                                                              await Permission.camera.request();
+                                                                              //return CameraScreen();
+
+                                                                              // getimage();
+                                                                              //  print('pressss');
+                                                                              Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
+                                                                            },
+
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.pink,
+                                                                                child: IconButton(
+                                                                                    icon: Icon(Icons.camera_alt,
+                                                                                      // semanticLabel: "Help",
+                                                                                      size: 29,
+                                                                                      color: Colors.white,)
+                                                                                ),
+                                                                              ),
+
+
+                                                                              Text(
+                                                                                "Camera",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        InkWell(
+                                                                          onTap: (){
+                                                                            getimage();
+                                                                          },
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.purpleAccent,
+                                                                                child: IconButton(
+                                                                                  icon: Icon(Icons.insert_photo,
+                                                                                    // semanticLabel: "Help",
+                                                                                    size: 29,
+                                                                                    color: Colors.white,)
+                                                                                  ),
+                                                                                ),
+
+
+                                                                              Text(
+                                                                                "Gallery",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                      children: [
+                                                                        InkWell(
+                                                                          onTap: (){
+
+                                                                            //return CameraScreen();
+
+                                                                            // getimage();
+                                                                            //  print('pressss');
+                                                                            //   Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
+                                                                          },
+
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.orange,
+                                                                                child: IconButton(
+                                                                                    icon: Icon(Icons.headset,
+                                                                                      // semanticLabel: "Help",
+                                                                                      size: 29,
+                                                                                      color: Colors.white,)
+                                                                                ),
+                                                                              ),
+
+
+                                                                              Text(
+                                                                                "Audio",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        InkWell(
+                                                                          onTap: (){
+
+                                                                            //return CameraScreen();
+
+                                                                            // getimage();
+                                                                            //  print('pressss');
+                                                                               Navigator.push(context, MaterialPageRoute(builder: (context) => mapmap()));
+                                                                          },
+
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.teal,
+                                                                                child: IconButton(
+                                                                                    icon: Icon(Icons.location_pin,
+                                                                                      // semanticLabel: "Help",
+                                                                                      size: 29,
+                                                                                      color: Colors.white,)
+                                                                                ),
+                                                                              ),
+
+
+                                                                              Text(
+                                                                                "Location",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        InkWell(
+                                                                          onTap: (){
+
+                                                                            //return CameraScreen();
+
+                                                                            // getimage();
+                                                                            //  print('pressss');
+                                                                            //   Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
+                                                                          },
+
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.blue,
+                                                                                child: IconButton(
+                                                                                    icon: Icon(Icons.person,
+                                                                                      // semanticLabel: "Help",
+                                                                                      size: 29,
+                                                                                      color: Colors.white,)
+                                                                                ),
+                                                                              ),
+
+
+                                                                              Text(
+                                                                                "Contact",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                      children: [
+                                                                        InkWell(
+                                                                          onTap: (){
+
+                                                                            //return CameraScreen();
+
+                                                                            // getimage();
+                                                                            //  print('pressss');
+                                                                            //   Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
+                                                                          },
+
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.purpleAccent,
+                                                                                child: IconButton(
+                                                                                    icon: Icon(Icons.touch_app_rounded,
+                                                                                      // semanticLabel: "Help",
+                                                                                      size: 29,
+                                                                                      color: Colors.white,)
+                                                                                ),
+                                                                              ),
+
+
+                                                                              Text(
+                                                                                "Creat Sketch",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        InkWell(
+                                                                          onTap: (){
+
+                                                                            //return CameraScreen();
+
+                                                                            // getimage();
+                                                                            //  print('pressss');
+                                                                            //   Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
+                                                                          },
+
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.blue,
+                                                                                child: IconButton(
+                                                                                    icon: Icon(Icons.card_giftcard,
+                                                                                      // semanticLabel: "Help",
+                                                                                      size: 29,
+                                                                                      color: Colors.white,)
+                                                                                ),
+                                                                              ),
+
+
+                                                                              Text(
+                                                                                "Gif",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        InkWell(
+                                                                          onTap: (){
+
+                                                                            //return CameraScreen();
+
+                                                                            // getimage();
+                                                                            //  print('pressss');
+                                                                            //   Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
+                                                                          },
+
+                                                                          child: Column(
+                                                                            children: [
+                                                                              CircleAvatar(
+                                                                                radius: 30,
+                                                                                backgroundColor: Colors.green,
+                                                                                child: IconButton(
+                                                                                    icon: Icon(Icons.keyboard_voice,
+                                                                                      // semanticLabel: "Help",
+                                                                                      size: 29,
+                                                                                      color: Colors.white,)
+                                                                                ),
+                                                                              ),
+
+
+                                                                              Text(
+                                                                                "Voice to text",
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  // fontWeight: FontWeight.w100,
+                                                                                ),
+                                                                              )
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
                                               },
                                             ),
                                             IconButton(
                                               icon: Icon(Icons.camera_alt),
-                                              onPressed: () {
-                                                // Navigator.push(
-                                                //     context,
-                                                //     MaterialPageRoute(
-                                                //         builder: (builder) =>
-                                                //             CameraApp()));
+                                              onPressed: ()async {
+                                                await Permission.camera.request();
+                                                //return CameraScreen();
+
+                                                // getimage();
+                                              //  print('pressss');
+                                                Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPage()));
                                               },
                                             ),
                                           ],
@@ -409,7 +807,7 @@ class _ChatScreenState extends State<ChatScreen> {
       await SystemChannels.textInput.invokeMethod('TextInput.hide');
       await Future.delayed(Duration(milliseconds: 100));
     }
-    toggleEmojiKeyboard();
+   // toggleEmojiKeyboard();
   }
 
 
@@ -539,55 +937,7 @@ class MessageBubble extends StatelessWidget {
 
 }
 
-Widget bottomSheet() {
-  return Container(
-    height: 278,
-    // width: MediaQuery.of(context).size.width,
-    child: Card(
-      margin: const EdgeInsets.all(18.0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                iconCreation(
-                    Icons.insert_drive_file, Colors.indigo, "Document"),
-                SizedBox(
-                  width: 40,
-                ),
-                iconCreation(Icons.camera_alt, Colors.pink, "Camera"),
-                SizedBox(
-                  width: 40,
-                ),
-                iconCreation(Icons.insert_photo, Colors.purple, "Gallery"),
-              ],
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                iconCreation(Icons.headset, Colors.orange, "Audio"),
-                SizedBox(
-                  width: 40,
-                ),
-                iconCreation(Icons.location_pin, Colors.teal, "Location"),
-                SizedBox(
-                  width: 40,
-                ),
-                iconCreation(Icons.person, Colors.blue, "Contact"),
-              ],
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+
 Widget iconCreation(IconData icons, Color color, String text) {
   return InkWell(
     onTap: () {},
